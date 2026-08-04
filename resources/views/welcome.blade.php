@@ -5,164 +5,167 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DPWH ProjectHub</title>
 
-    @vite(['resources/css/app.css','resources/js/app.js'])
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
     <style>
-        body{
-            margin:0;
-            font-family:Arial, Helvetica, sans-serif;
-            background:#f4f6f9;
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0d6efd 0%, #003c8f 100%);
+            min-height: 100vh;
+            color: white;
         }
 
-        .navbar{
-            background:#003366;
-            color:white;
-            padding:18px 40px;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
+        .hero {
+            padding: 80px 20px 50px;
+            text-align: center;
         }
 
-        .navbar h2{
-            margin:0;
+        .hero img {
+            width: 110px;
+            margin-bottom: 20px;
         }
 
-        .navbar a{
-            color:white;
-            text-decoration:none;
-            margin-left:20px;
-            font-weight:bold;
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
         }
 
-        .hero{
-            text-align:center;
-            padding:100px 20px;
+        .hero p {
+            font-size: 1.15rem;
+            max-width: 750px;
+            margin: 15px auto 0;
+            opacity: 0.95;
         }
 
-        .hero h1{
-            color:#003366;
-            font-size:50px;
+        .feature-card {
+            background: #ffffff;
+            color: #212529;
+            border: none;
+            border-radius: 18px;
+            padding: 30px 25px;
+            height: 100%;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
-        .hero p{
-            color:#666;
-            font-size:20px;
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.2);
         }
 
-        .btn{
-            display:inline-block;
-            margin-top:30px;
-            background:#ffc107;
-            color:black;
-            padding:15px 35px;
-            text-decoration:none;
-            border-radius:8px;
-            font-weight:bold;
+        .feature-icon {
+            font-size: 2.5rem;
+            color: #0d6efd;
+            margin-bottom: 15px;
         }
 
-        .cards{
-            display:flex;
-            justify-content:center;
-            gap:30px;
-            margin:60px;
-            flex-wrap:wrap;
+        .feature-card h5 {
+            font-weight: 700;
+            margin-bottom: 12px;
         }
 
-        .card{
-            background:white;
-            width:280px;
-            padding:30px;
-            border-radius:12px;
-            box-shadow:0 5px 15px rgba(0,0,0,.1);
-            text-align:center;
+        .feature-card p {
+            color: #495057;
+            margin-bottom: 0;
+            line-height: 1.6;
         }
 
-        .card h3{
-            color:#003366;
+        .login-btn {
+            margin-top: 40px;
+            padding: 12px 35px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
         }
 
-        footer{
-            background:#003366;
-            color:white;
-            text-align:center;
-            padding:20px;
-            margin-top:60px;
+        footer {
+            text-align: center;
+            padding: 30px 15px 20px;
+            font-size: 0.9rem;
+            opacity: 0.9;
         }
-
     </style>
-
 </head>
-
 <body>
 
-<div class="navbar">
+    <section class="hero">
+        <img src="{{ asset('images/dpwh_logo.png') }}" alt="DPWH Logo">
 
-    <h2>DPWH ProjectHub</h2>
-
-    <div>
-
-        <a href="/login">Login</a>
-
-        <a href="/register">Register</a>
-
-    </div>
-
-</div>
-
-<div class="hero">
-
-    <h1>DPWH ProjectHub</h1>
-
-    <p>
-        A Project Monitoring and Field Survey Management System
-    </p>
-
-    <a href="/login" class="btn">
-        Get Started
-    </a>
-
-</div>
-
-<div class="cards">
-
-    <div class="card">
-
-        <h3>Project Monitoring</h3>
-
+        <h1>DPWH ProjectHub</h1>
         <p>
-            Monitor ongoing infrastructure projects across all regions.
+            A centralized infrastructure monitoring and project management system for the
+            Department of Public Works and Highways – Negros Island Region. Monitor projects,
+            visualize locations, track accomplishments, and generate reports efficiently.
         </p>
 
+        <a href="{{ route('login') }}" class="btn btn-light btn-lg login-btn">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Log In
+        </a>
+    </section>
+
+    <div class="container pb-5">
+        <div class="row g-4">
+
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card text-center">
+                    <div class="feature-icon">
+                        <i class="bi bi-folder2-open"></i>
+                    </div>
+                    <h5>Projects</h5>
+                    <p>
+                        Manage infrastructure project information, contractors, engineers, schedules,
+                        contract amounts, and accomplishment data in one centralized repository.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card text-center">
+                    <div class="feature-icon">
+                        <i class="bi bi-geo-alt-fill"></i>
+                    </div>
+                    <h5>Project Map</h5>
+                    <p>
+                        View all DPWH projects on an interactive map with clickable location markers
+                        that display project details, status, and accomplishment information.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card text-center">
+                    <div class="feature-icon">
+                        <i class="bi bi-bar-chart-line-fill"></i>
+                    </div>
+                    <h5>Dashboard</h5>
+                    <p>
+                        Monitor ongoing, completed, and suspended projects through visual charts,
+                        summary cards, accomplishment trends, and real-time project statistics.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card text-center">
+                    <div class="feature-icon">
+                        <i class="bi bi-file-earmark-text-fill"></i>
+                    </div>
+                    <h5>Reports</h5>
+                    <p>
+                        Generate accomplishment reports, progress summaries, and printable PDF documents
+                        for monitoring, evaluation, and management reporting requirements.
+                    </p>
+                </div>
+            </div>
+
+        </div>
     </div>
 
-    <div class="card">
-
-        <h3>Survey Forms</h3>
-
-        <p>
-            Submit field inspections with GPS coordinates and photos.
-        </p>
-
-    </div>
-
-    <div class="card">
-
-        <h3>Reports</h3>
-
-        <p>
-            Generate accomplishment reports and project analytics.
-        </p>
-
-    </div>
-
-</div>
-
-<footer>
-
-    © {{ date('Y') }} DPWH ProjectHub
-
-</footer>
+    <footer>
+        DPWH ProjectHub © 2026 · Department of Public Works and Highways – Negros Island Region
+    </footer>
 
 </body>
-
 </html>
