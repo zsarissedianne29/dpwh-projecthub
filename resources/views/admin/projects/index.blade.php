@@ -6,265 +6,312 @@
 
 <div class="container-fluid">
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
 
-        <h3 class="mb-0 fw-bold">
-            Project List
-        </h3>
+    <h3 class="mb-0 fw-bold">
+        <i class="bi bi-folder2-open me-2 text-primary"></i>
+        Project List
+    </h3>
 
-        {{-- ONLY ADMIN CAN ADD PROJECTS --}}
-        @if(auth()->user()->role === 'admin')
-            <a href="{{ route('projects.create') }}" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> Add Project
+    {{-- ONLY ADMIN CAN ADD PROJECTS --}}
+    @if(auth()->user()->role === 'admin')
+        <a href="{{ route('projects.create') }}" class="btn btn-primary shadow-sm">
+            <i class="bi bi-plus-circle me-1"></i>
+            Add Project
+        </a>
+    @endif
+
+</div>
+
+{{-- Success Message --}}
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show shadow-sm">
+        <i class="bi bi-check-circle me-2"></i>
+        {{ session('success') }}
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
+{{-- Search Bar --}}
+<form method="GET"
+      action="{{ route('projects.index') }}"
+      class="mb-3">
+
+    <div class="input-group shadow-sm">
+
+        <input type="text"
+               name="search"
+               class="form-control"
+               placeholder="Search Project ID, Title, Contractor, Engineer..."
+               value="{{ request('search') }}">
+
+        <button class="btn btn-primary" type="submit">
+            <i class="bi bi-search me-1"></i>
+            Search
+        </button>
+
+        @if(request('search'))
+            <a href="{{ route('projects.index') }}"
+               class="btn btn-secondary">
+                <i class="bi bi-arrow-clockwise me-1"></i>
+                Reset
             </a>
         @endif
 
     </div>
 
-    {{-- Success Message --}}
-    @if(session('success'))
+</form>
 
-        <div class="alert alert-success alert-dismissible fade show">
+<div class="card shadow border-0 rounded-4">
 
-            {{ session('success') }}
+    <div class="card-header bg-white border-0 py-3">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h5 class="mb-0 fw-semibold text-dark">Project Monitoring Table</h5>
+                <small class="text-muted">Track contract values, accomplishments, balances, and project status.</small>
+            </div>
 
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert"></button>
-
+            <span class="badge bg-primary-subtle text-primary-emphasis px-3 py-2 rounded-pill">
+                Total: {{ $projects->count() }} Project{{ $projects->count() == 1 ? '' : 's' }}
+            </span>
         </div>
+    </div>
 
-    @endif
+    <div class="card-body table-responsive p-0">
 
-    {{-- Search Bar --}}
-    <form method="GET"
-          action="{{ route('projects.index') }}"
-          class="mb-3">
+        <table class="table table-bordered table-striped table-hover align-middle mb-0">
 
-        <div class="input-group">
+            <thead class="table-primary text-center align-middle">
 
-            <input type="text"
-                   name="search"
-                   class="form-control"
-                   placeholder="Search Project ID, Title, Contractor, Engineer..."
-                   value="{{ request('search') }}">
+                <tr>
+                    <th width="140">Project ID</th>
+                    <th style="min-width: 350px;">Project Title</th>
+                    <th width="190">Contract Amount</th>
+                    <th width="210">Revised Contract Amount</th>
+                    <th width="220">Contractor</th>
+                    <th width="190">Project Engineer</th>
+                    <th width="120">Start Date</th>
+                    <th width="120">Expiry Date</th>
+                    <th width="110">Physical %</th>
+                    <th width="120">Financial %</th>
+                    <th width="190">Balance</th>
+                    <th width="120">Status</th>
+                    <th width="110">Slippage</th>
+                    <th width="250">Action</th>
+                </tr>
 
-            <button class="btn btn-primary" type="submit">
-                <i class="bi bi-search"></i> Search
-            </button>
+            </thead>
 
-            @if(request('search'))
+            <tbody>
 
-                <a href="{{ route('projects.index') }}"
-                   class="btn btn-secondary">
-                    Reset
-                </a>
+            @forelse($projects as $project)
 
-            @endif
+                @php
+                    $baseAmount = $project->revised_contract_amount ?? $project->contract_amount ?? 0;
+                    $financialPercent = $project->financial_accomplishment ?? 0;
+                    $balance = $baseAmount - (($financialPercent / 100) * $baseAmount);
+                @endphp
 
-        </div>
+                <tr>
 
-    </form>
+                    <td class="text-center fw-semibold text-primary">
+                        {{ $project->project_id }}
+                    </td>
 
-    <div class="card shadow border-0">
+                    <td class="small">
+                        <div class="fw-semibold text-dark mb-1">
+                            {{ \Illuminate\Support\Str::limit($project->project_title, 120) }}
+                        </div>
 
-        <div class="card-body table-responsive">
+                        @if($project->location)
+                            <small class="text-muted">
+                                <i class="bi bi-geo-alt me-1"></i>
+                                {{ $project->location }}
+                            </small>
+                        @endif
+                    </td>
 
-            <table class="table table-bordered table-striped table-hover align-middle">
+                    <td class="text-end fw-semibold">
+                        ₱{{ number_format($project->contract_amount ?? 0, 2) }}
+                    </td>
 
-                <thead class="table-primary text-center align-middle">
+                    <td class="text-end fw-semibold text-success">
+                        ₱{{ number_format($project->revised_contract_amount ?? $project->contract_amount ?? 0, 2) }}
+                    </td>
 
-                    <tr>
+                    <td class="small">
+                        {{ $project->contractor ?: 'N/A' }}
+                    </td>
 
-                        <th width="140">Project ID</th>
-                        <th style="min-width: 350px;">Project Title</th>
-                        <th width="170">Contract Amount</th>
-                        <th width="200">Contractor</th>
-                        <th width="180">Project Engineer</th>
-                        <th width="120">Start Date</th>
-                        <th width="120">Expiry Date</th>
-                        <th width="100">Physical %</th>
-                        <th width="100">Financial %</th>
-                        <th width="120">Status</th>
-                        <th width="100">Slippage</th>
-                        <th width="220">Action</th>
+                    <td class="small">
+                        {{ $project->project_engineer ?: 'N/A' }}
+                    </td>
 
-                    </tr>
+                    <td class="text-center small">
+                        {{ $project->start_date ?: '-' }}
+                    </td>
 
-                </thead>
+                    <td class="text-center small">
+                        {{ $project->expiry_date ?: '-' }}
+                    </td>
 
-                <tbody>
+                    <td class="text-center fw-semibold text-info">
+                        {{ number_format($project->physical_accomplishment ?? 0, 2) }}%
+                    </td>
 
-                @forelse($projects as $project)
+                    <td class="text-center fw-semibold text-primary">
+                        {{ number_format($financialPercent, 2) }}%
+                    </td>
 
-                    <tr>
+                    <td class="text-end fw-bold text-danger">
+                        ₱{{ number_format($balance, 2) }}
+                    </td>
 
-                        <td class="text-center fw-semibold">
-                            {{ $project->project_id }}
-                        </td>
+                    {{-- Status --}}
+                    <td class="text-center">
 
-                        <td class="small">
-                            {{ $project->project_title }}
-                        </td>
+                        @if($project->status === 'ongoing')
 
-                        <td class="text-end">
-                            ₱{{ number_format($project->contract_amount ?? 0, 2) }}
-                        </td>
+                            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">
+                                Ongoing
+                            </span>
 
-                        <td class="small">
-                            {{ $project->contractor ?: 'N/A' }}
-                        </td>
+                        @elseif($project->status === 'completed')
 
-                        <td class="small">
-                            {{ $project->project_engineer ?: 'N/A' }}
-                        </td>
+                            <span class="badge bg-success px-3 py-2 rounded-pill">
+                                Completed
+                            </span>
 
-                        <td class="text-center">
-                            {{ $project->start_date ?? '-' }}
-                        </td>
+                        @elseif($project->status === 'suspended')
 
-                        <td class="text-center">
-                            {{ $project->expiry_date ?? '-' }}
-                        </td>
+                            <span class="badge bg-danger px-3 py-2 rounded-pill">
+                                Suspended
+                            </span>
 
-                        <td class="text-center">
-                            {{ number_format($project->physical_accomplishment ?? 0, 2) }}%
-                        </td>
+                        @else
 
-                        <td class="text-center">
-                            {{ number_format($project->financial_accomplishment ?? 0, 2) }}%
-                        </td>
+                            <span class="badge bg-secondary px-3 py-2 rounded-pill">
+                                {{ ucfirst($project->status) }}
+                            </span>
 
-                        {{-- Status --}}
-                        <td class="text-center">
+                        @endif
 
-                            @if($project->status === 'ongoing')
+                    </td>
 
-                                <span class="badge bg-warning text-dark px-3 py-2">
-                                    Ongoing
-                                </span>
+                    {{-- Slippage --}}
+                    <td class="text-center fw-semibold">
 
-                            @elseif($project->status === 'completed')
+                        @if(($project->slippage ?? 0) < 0)
+                            <span class="text-danger">
+                                {{ number_format($project->slippage, 2) }}%
+                            </span>
+                        @else
+                            <span class="text-success">
+                                {{ number_format($project->slippage ?? 0, 2) }}%
+                            </span>
+                        @endif
 
-                                <span class="badge bg-success px-3 py-2">
-                                    Completed
-                                </span>
+                    </td>
 
-                            @elseif($project->status === 'suspended')
+                    {{-- ACTION COLUMN --}}
+                    <td class="text-center">
 
-                                <span class="badge bg-danger px-3 py-2">
-                                    Suspended
-                                </span>
+                        <div class="d-flex justify-content-center align-items-center gap-1 flex-wrap">
 
-                            @else
+                            {{-- PDF DOWNLOAD: EVERYONE CAN DOWNLOAD --}}
+                            <a href="{{ route('projects.pdf', $project->id) }}"
+                               class="btn btn-success btn-sm shadow-sm"
+                               title="Download PDF">
 
-                                <span class="badge bg-secondary px-3 py-2">
-                                    {{ ucfirst($project->status) }}
-                                </span>
+                                <i class="bi bi-file-earmark-pdf me-1"></i>
+                                PDF
 
-                            @endif
+                            </a>
 
-                        </td>
+                            {{-- EDIT & DELETE: ONLY ADMIN OR ASSIGNED ENGINEER --}}
+                            @if(
+                                auth()->user()->role === 'admin' ||
 
-                        {{-- Slippage --}}
-                        <td class="text-center">
-                            {{ number_format($project->slippage ?? 0, 2) }}%
-                        </td>
+                                (
+                                    in_array(auth()->user()->role, ['engineer', 'project_engineer'])
 
-                        {{-- ACTION COLUMN --}}
-                        <td class="text-center">
+                                    &&
 
-                            <div class="d-flex justify-content-center align-items-center gap-1 flex-wrap">
+                                    strtoupper(trim(auth()->user()->engineer_name ?? ''))
+                                        === strtoupper(trim($project->project_engineer ?? ''))
+                                )
+                            )
 
-                                {{-- PDF DOWNLOAD: EVERYONE CAN DOWNLOAD --}}
-                                <a href="{{ route('projects.pdf', $project->id) }}"
-                                   class="btn btn-success btn-sm"
-                                   title="Download PDF">
+                                {{-- EDIT --}}
+                                <a href="{{ route('projects.edit', $project->id) }}"
+                                   class="btn btn-warning btn-sm shadow-sm"
+                                   title="Edit Project">
 
-                                    <i class="bi bi-file-earmark-pdf"></i>
-                                    PDF
+                                    <i class="bi bi-pencil-square me-1"></i>
+                                    Edit
 
                                 </a>
 
-                                {{-- EDIT & DELETE: ONLY ADMIN OR ASSIGNED ENGINEER --}}
-                                @if(
-                                    auth()->user()->role === 'admin' ||
+                                {{-- DELETE --}}
+                                <form action="{{ route('projects.destroy', $project->id) }}"
+                                      method="POST"
+                                      class="d-inline">
 
-                                    (
-                                        in_array(auth()->user()->role, ['engineer', 'project_engineer'])
+                                    @csrf
+                                    @method('DELETE')
 
-                                        &&
+                                    <button type="submit"
+                                            class="btn btn-danger btn-sm shadow-sm"
+                                            title="Delete Project"
+                                            onclick="return confirm('Are you sure you want to delete this project?')">
 
-                                        strtoupper(trim(auth()->user()->engineer_name ?? ''))
-                                            === strtoupper(trim($project->project_engineer ?? ''))
-                                    )
-                                )
+                                        <i class="bi bi-trash me-1"></i>
+                                        Delete
 
-                                    {{-- EDIT --}}
-                                    <a href="{{ route('projects.edit', $project->id) }}"
-                                       class="btn btn-warning btn-sm"
-                                       title="Edit Project">
+                                    </button>
 
-                                        <i class="bi bi-pencil-square"></i>
-                                        Edit
+                                </form>
 
-                                    </a>
+                            @endif
 
-                                    {{-- DELETE --}}
-                                    <form action="{{ route('projects.destroy', $project->id) }}"
-                                          method="POST"
-                                          class="d-inline">
+                        </div>
 
-                                        @csrf
-                                        @method('DELETE')
+                    </td>
 
-                                        <button type="submit"
-                                                class="btn btn-danger btn-sm"
-                                                title="Delete Project"
-                                                onclick="return confirm('Are you sure you want to delete this project?')">
+                </tr>
 
-                                            <i class="bi bi-trash"></i>
-                                            Delete
+            @empty
 
-                                        </button>
+                <tr>
 
-                                    </form>
+                    <td colspan="14" class="text-center py-5">
 
-                                @endif
+                        <div class="text-muted">
 
-                            </div>
+                            <i class="bi bi-folder-x fs-1 d-block mb-3"></i>
 
-                        </td>
+                            <h5 class="mb-1">No projects found</h5>
 
-                    </tr>
+                            <p class="mb-0">Try adjusting your search terms or add a new project.</p>
 
-                @empty
+                        </div>
 
-                    <tr>
+                    </td>
 
-                        <td colspan="12" class="text-center py-5">
+                </tr>
 
-                            <div class="text-muted">
+            @endforelse
 
-                                <i class="bi bi-folder-x fs-2 d-block mb-2"></i>
+            </tbody>
 
-                                <strong>No projects found.</strong>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-                @endforelse
-
-                </tbody>
-
-            </table>
-
-        </div>
+        </table>
 
     </div>
+
+</div>
 
 </div>
 
