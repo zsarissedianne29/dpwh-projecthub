@@ -12,6 +12,7 @@ class Project extends Model
         'project_id',
         'project_title',
         'contract_amount',
+        'revised_contract_amount',
         'contractor',
         'project_engineer',
         'location',
@@ -30,6 +31,11 @@ class Project extends Model
     public function photos()
     {
         return $this->hasMany(ProjectPhoto::class);
+    }
+
+    public function commitments()
+    {
+        return $this->hasMany(ProjectCommitment::class);
     }
 
     // IMPORTANT: disable updated_at

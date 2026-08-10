@@ -4,9 +4,19 @@
 
 @section('content')
 
+@php
+$selectedMonth = old('commitment_month', request('month', now()->format('Y-m')));
+
+$commitment = $project->commitments
+    ->where('commitment_month', $selectedMonth)
+    ->first();
+
+@endphp
+
 <div class="container-fluid">
 
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+
     <div>
         <h1 class="mb-1 fw-bold">
             <i class="bi bi-pencil-square me-2 text-primary"></i>
@@ -14,7 +24,7 @@
         </h1>
 
         <p class="text-muted mb-0">
-            Update project information, accomplishments, financial details, and progress photos.
+            Update project information, accomplishments, financial details, commitment data, and progress photos.
         </p>
     </div>
 
@@ -22,6 +32,7 @@
         <i class="bi bi-arrow-left me-1"></i>
         Back to Projects
     </a>
+
 </div>
 
 <div class="card shadow border-0 rounded-4">
@@ -35,8 +46,9 @@
             @csrf
             @method('PUT')
 
-            {{-- Basic Information --}}
+            {{-- BASIC INFORMATION --}}
             <div class="mb-4">
+
                 <h5 class="fw-semibold text-primary mb-3 border-bottom pb-2">
                     <i class="bi bi-info-circle me-2"></i>
                     Basic Information
@@ -45,6 +57,7 @@
                 <div class="row g-3">
 
                     <div class="col-md-4">
+
                         <label for="project_id" class="form-label fw-semibold">
                             Project ID
                         </label>
@@ -59,29 +72,34 @@
                         @error('project_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
+
                     </div>
 
                     <div class="col-md-8">
+
                         <label for="project_title" class="form-label fw-semibold">
                             Project Title
                         </label>
 
                         <textarea name="project_title"
                                   id="project_title"
-                                  class="form-control @error('project_title') is-invalid @enderror"
                                   rows="3"
+                                  class="form-control @error('project_title') is-invalid @enderror"
                                   required>{{ old('project_title', $project->project_title) }}</textarea>
 
                         @error('project_title')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
+
                     </div>
 
                 </div>
+
             </div>
 
-            {{-- Financial Information --}}
+            {{-- FINANCIAL INFORMATION --}}
             <div class="mb-4">
+
                 <h5 class="fw-semibold text-primary mb-3 border-bottom pb-2">
                     <i class="bi bi-cash-stack me-2"></i>
                     Financial Information
@@ -90,11 +108,13 @@
                 <div class="row g-3">
 
                     <div class="col-md-6">
+
                         <label for="contract_amount" class="form-label fw-semibold">
                             Contract Amount
                         </label>
 
                         <div class="input-group">
+
                             <span class="input-group-text">₱</span>
 
                             <input type="number"
@@ -104,19 +124,23 @@
                                    class="form-control @error('contract_amount') is-invalid @enderror"
                                    value="{{ old('contract_amount', $project->contract_amount) }}"
                                    required>
+
                         </div>
 
                         @error('contract_amount')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
+
                     </div>
 
                     <div class="col-md-6">
+
                         <label for="revised_contract_amount" class="form-label fw-semibold">
                             Revised Contract Amount
                         </label>
 
                         <div class="input-group">
+
                             <span class="input-group-text">₱</span>
 
                             <input type="number"
@@ -124,20 +148,23 @@
                                    name="revised_contract_amount"
                                    id="revised_contract_amount"
                                    class="form-control @error('revised_contract_amount') is-invalid @enderror"
-                                   value="{{ old('revised_contract_amount', $project->revised_contract_amount ?? $project->contract_amount) }}"
-                                   placeholder="Enter revised contract amount">
+                                   value="{{ old('revised_contract_amount', $project->revised_contract_amount ?? $project->contract_amount) }}">
+
                         </div>
 
                         @error('revised_contract_amount')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
+
                     </div>
 
                 </div>
+
             </div>
 
-            {{-- Project Details --}}
+            {{-- PROJECT DETAILS --}}
             <div class="mb-4">
+
                 <h5 class="fw-semibold text-primary mb-3 border-bottom pb-2">
                     <i class="bi bi-briefcase me-2"></i>
                     Project Details
@@ -146,6 +173,7 @@
                 <div class="row g-3">
 
                     <div class="col-md-6">
+
                         <label for="contractor" class="form-label fw-semibold">
                             Contractor
                         </label>
@@ -155,9 +183,11 @@
                                id="contractor"
                                value="{{ old('contractor', $project->contractor) }}"
                                class="form-control">
+
                     </div>
 
                     <div class="col-md-6">
+
                         <label for="project_engineer" class="form-label fw-semibold">
                             Project Engineer
                         </label>
@@ -167,9 +197,11 @@
                                id="project_engineer"
                                value="{{ old('project_engineer', $project->project_engineer) }}"
                                class="form-control">
+
                     </div>
 
                     <div class="col-12">
+
                         <label for="location" class="form-label fw-semibold">
                             Location
                         </label>
@@ -179,13 +211,16 @@
                                id="location"
                                value="{{ old('location', $project->location) }}"
                                class="form-control">
+
                     </div>
 
                 </div>
+
             </div>
 
-            {{-- Schedule --}}
+            {{-- SCHEDULE --}}
             <div class="mb-4">
+
                 <h5 class="fw-semibold text-primary mb-3 border-bottom pb-2">
                     <i class="bi bi-calendar-event me-2"></i>
                     Schedule
@@ -194,6 +229,7 @@
                 <div class="row g-3">
 
                     <div class="col-md-6">
+
                         <label for="start_date" class="form-label fw-semibold">
                             Start Date
                         </label>
@@ -203,9 +239,11 @@
                                id="start_date"
                                value="{{ old('start_date', $project->start_date) }}"
                                class="form-control">
+
                     </div>
 
                     <div class="col-md-6">
+
                         <label for="expiry_date" class="form-label fw-semibold">
                             Expiry Date
                         </label>
@@ -215,64 +253,215 @@
                                id="expiry_date"
                                value="{{ old('expiry_date', $project->expiry_date) }}"
                                class="form-control">
+
                     </div>
 
                 </div>
+
             </div>
 
-            {{-- Accomplishments --}}
+            {{-- PROJECT ACCOMPLISHMENTS --}}
             <div class="mb-4">
+
                 <h5 class="fw-semibold text-primary mb-3 border-bottom pb-2">
                     <i class="bi bi-graph-up-arrow me-2"></i>
-                    Accomplishments
+                    Project Accomplishments
                 </h5>
 
                 <div class="row g-3">
 
-                    <div class="col-md-4">
+                    <div class="col-md-6">
+
                         <label for="physical_accomplishment" class="form-label fw-semibold">
-                            Physical Accomplishment (%)
+                            Overall Physical Accomplishment (%)
                         </label>
 
-                        <input type="number"
-                               step="0.01"
-                               name="physical_accomplishment"
-                               id="physical_accomplishment"
-                               value="{{ old('physical_accomplishment', $project->physical_accomplishment) }}"
-                               class="form-control">
+                        <div class="input-group">
+
+                            <input type="number"
+                                   step="0.01"
+                                   name="physical_accomplishment"
+                                   id="physical_accomplishment"
+                                   value="{{ old('physical_accomplishment', $project->physical_accomplishment) }}"
+                                   class="form-control">
+
+                            <span class="input-group-text">%</span>
+
+                        </div>
+
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-6">
+
                         <label for="financial_accomplishment" class="form-label fw-semibold">
                             Financial Accomplishment (%)
                         </label>
 
-                        <input type="number"
-                               step="0.01"
-                               name="financial_accomplishment"
-                               id="financial_accomplishment"
-                               value="{{ old('financial_accomplishment', $project->financial_accomplishment) }}"
-                               class="form-control">
-                    </div>
+                        <div class="input-group">
 
-                    <div class="col-md-4">
-                        <label for="slippage" class="form-label fw-semibold">
-                            Slippage (%)
-                        </label>
+                            <input type="number"
+                                   step="0.01"
+                                   name="financial_accomplishment"
+                                   id="financial_accomplishment"
+                                   value="{{ old('financial_accomplishment', $project->financial_accomplishment) }}"
+                                   class="form-control">
 
-                        <input type="number"
-                               step="0.01"
-                               name="slippage"
-                               id="slippage"
-                               value="{{ old('slippage', $project->slippage) }}"
-                               class="form-control">
+                            <span class="input-group-text">%</span>
+
+                        </div>
+
                     </div>
 
                 </div>
+
             </div>
 
-            {{-- Status --}}
+            {{-- COMMITMENT INFORMATION --}}
             <div class="mb-4">
+
+                <h5 class="fw-semibold text-primary mb-3 border-bottom pb-2">
+                    <i class="bi bi-calendar-check me-2"></i>
+                    Commitment Information
+                </h5>
+
+                <div class="row g-3">
+
+                    {{-- Commitment Month --}}
+                    <div class="col-md-3">
+
+                        <label for="commitment_month" class="form-label fw-semibold">
+                            Commitment Month
+                        </label>
+
+                        <input type="month"
+                               name="commitment_month"
+                               id="commitment_month"
+                               value="{{ $selectedMonth }}"
+                               class="form-control">
+
+                    </div>
+
+                    {{-- Actual --}}
+                    <div class="col-md-3">
+
+                        <label for="actual" class="form-label fw-semibold">
+                            Actual (%)
+                        </label>
+
+                        <div class="input-group">
+
+                            <input type="number"
+                                   step="0.01"
+                                   name="actual"
+                                   id="actual"
+                                   value="{{ old('actual', $commitment->actual ?? '') }}"
+                                   class="form-control">
+
+                            <span class="input-group-text">%</span>
+
+                        </div>
+
+                    </div>
+
+                    {{-- Planned --}}
+                    <div class="col-md-3">
+
+                        <label for="planned" class="form-label fw-semibold">
+                            Planned (%)
+                        </label>
+
+                        <div class="input-group">
+
+                            <input type="number"
+                                   step="0.01"
+                                   name="planned"
+                                   id="planned"
+                                   value="{{ old('planned', $commitment->planned ?? '') }}"
+                                   class="form-control">
+
+                            <span class="input-group-text">%</span>
+
+                        </div>
+
+                    </div>
+
+                    {{-- Slippage --}}
+                    <div class="col-md-3">
+
+                        <label for="commitment_slippage" class="form-label fw-semibold">
+                            Slippage (%)
+                        </label>
+
+                        <div class="input-group">
+
+                            <input type="number"
+                                   step="0.01"
+                                   name="commitment_slippage"
+                                   id="commitment_slippage"
+                                   value="{{ old('commitment_slippage', $commitment->slippage ?? '') }}"
+                                   class="form-control">
+
+                            <span class="input-group-text">%</span>
+
+                        </div>
+
+                    </div>
+
+                    {{-- 15% Advance --}}
+                    <div class="col-md-6">
+
+                        <label for="advance_payment" class="form-label fw-semibold">
+                            15% Advance Amount
+                        </label>
+
+                        <div class="input-group">
+
+                            <span class="input-group-text">₱</span>
+
+                            <input type="number"
+                                   step="0.01"
+                                   min="0"
+                                   name="advance_payment"
+                                   id="advance_payment"
+                                   value="{{ old('advance_payment', $commitment->advance_payment ?? '') }}"
+                                   class="form-control"
+                                   placeholder="Enter 15% advance amount">
+
+                        </div>
+
+                    </div>
+
+                    {{-- Progress / Interim --}}
+                    <div class="col-md-6">
+
+                        <label for="progress_interim" class="form-label fw-semibold">
+                            Progress / Interim Amount
+                        </label>
+
+                        <div class="input-group">
+
+                            <span class="input-group-text">₱</span>
+
+                            <input type="number"
+                                   step="0.01"
+                                   min="0"
+                                   name="progress_interim"
+                                   id="progress_interim"
+                                   value="{{ old('progress_interim', $commitment->progress_interim ?? '') }}"
+                                   class="form-control"
+                                   placeholder="Enter progress / interim amount">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {{-- STATUS --}}
+            <div class="mb-4">
+
                 <h5 class="fw-semibold text-primary mb-3 border-bottom pb-2">
                     <i class="bi bi-flag me-2"></i>
                     Status
@@ -281,6 +470,7 @@
                 <div class="row g-3">
 
                     <div class="col-md-6">
+
                         <label for="status" class="form-label fw-semibold">
                             Project Status
                         </label>
@@ -300,13 +490,16 @@
                             </option>
 
                         </select>
+
                     </div>
 
                 </div>
+
             </div>
 
-            {{-- Map Coordinates --}}
+            {{-- MAP COORDINATES --}}
             <div class="mb-4">
+
                 <h5 class="fw-semibold text-primary mb-3 border-bottom pb-2">
                     <i class="bi bi-geo-alt me-2"></i>
                     Map Coordinates
@@ -315,6 +508,7 @@
                 <div class="row g-3">
 
                     <div class="col-md-6">
+
                         <label for="latitude" class="form-label fw-semibold">
                             Latitude
                         </label>
@@ -325,9 +519,11 @@
                                id="latitude"
                                class="form-control"
                                value="{{ old('latitude', $project->latitude) }}">
+
                     </div>
 
                     <div class="col-md-6">
+
                         <label for="longitude" class="form-label fw-semibold">
                             Longitude
                         </label>
@@ -338,20 +534,36 @@
                                id="longitude"
                                class="form-control"
                                value="{{ old('longitude', $project->longitude) }}">
+
                     </div>
 
                 </div>
+
             </div>
 
-            {{-- Progress Photo --}}
+            {{-- PROGRESS PHOTO --}}
             <div class="mb-4">
+
                 <h5 class="fw-semibold text-primary mb-3 border-bottom pb-2">
                     <i class="bi bi-image me-2"></i>
                     Progress Photo
                 </h5>
 
+                @if($project->photo)
+
+                    <div class="mb-3">
+
+                        <img src="{{ asset('storage/' . $project->photo) }}"
+                             class="img-fluid rounded border shadow-sm"
+                             style="max-height: 220px;"
+                             alt="Current project photo">
+
+                    </div>
+
+                @endif
+
                 <label for="photo" class="form-label fw-semibold">
-                    Upload Progress Photo
+                    Upload New Progress Photo
                 </label>
 
                 <input type="file"
@@ -363,20 +575,25 @@
                 <div class="form-text">
                     Supported formats: JPG, JPEG, PNG, GIF
                 </div>
+
             </div>
 
-            {{-- Action Buttons --}}
+            {{-- ACTION BUTTONS --}}
             <div class="d-flex justify-content-end gap-2 pt-3 border-top">
 
                 <a href="{{ route('projects.index') }}"
                    class="btn btn-secondary px-4">
+
                     <i class="bi bi-x-circle me-1"></i>
                     Cancel
+
                 </a>
 
                 <button type="submit" class="btn btn-primary px-4 shadow-sm">
+
                     <i class="bi bi-check-circle me-1"></i>
                     Update Project
+
                 </button>
 
             </div>

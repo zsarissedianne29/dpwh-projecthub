@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\ProjectPhoto;
+use App\Models\ProjectCommitment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -36,7 +37,8 @@ class ProjectController extends Controller
     {
         $search = $request->search;
 
-        $projects = Project::when($search, function ($query, $search) {
+        $projects = Project::with('commitments')
+            ->when($search, function ($query, $search) {
                 $query->where('project_id', 'like', "%{$search}%")
                       ->orWhere('project_title', 'like', "%{$search}%")
                       ->orWhere('contractor', 'like', "%{$search}%")
@@ -74,6 +76,7 @@ class ProjectController extends Controller
             'project_id' => 'required|string|max:50|unique:projects,project_id',
             'project_title' => 'required|string|max:1000',
             'contract_amount' => 'nullable|numeric',
+            'revised_contract_amount' => 'nullable|numeric',
             'contractor' => 'nullable|string|max:255',
             'project_engineer' => 'nullable|string|max:255',
             'location' => 'nullable|string|max:255',
@@ -99,13 +102,25 @@ class ProjectController extends Controller
     /**
      * Show edit form.
      */
-    public function edit(Project $project)
+    public function edit(Request $request, Project $project)
     {
         if (!$this->canModify($project)) {
             abort(403, 'You are not allowed to edit this project.');
         }
 
-        return view('admin.projects.edit', compact('project'));
+        // Selected commitment month
+        $month = $request->get('month', now()->format('Y-m'));
+
+        // Get commitment for selected month
+        $commitment = $project->commitments()
+            ->where('commitment_month', $month)
+            ->first();
+
+        return view('admin.projects.edit', compact(
+            'project',
+            'commitment',
+            'month'
+        ));
     }
 
     /**
@@ -117,15 +132,18 @@ class ProjectController extends Controller
             abort(403, 'You are not allowed to update this project.');
         }
 
+        // =========================
+        // PROJECT VALIDATION
+        // =========================
         $validated = $request->validate([
             'project_id' => 'required|string|max:50',
             'project_title' => 'required|string|max:1000',
             'contract_amount' => 'nullable|numeric',
+            'revised_contract_amount' => 'nullable|numeric',
             'contractor' => 'nullable|string|max:255',
             'project_engineer' => 'nullable|string|max:255',
             'location' => 'nullable|string|max:255',
             'status' => 'required|string|max:50',
-            'slippage' => 'nullable|numeric',
             'start_date' => 'nullable|date',
             'expiry_date' => 'nullable|date',
             'physical_accomplishment' => 'nullable|numeric',
@@ -133,13 +151,57 @@ class ProjectController extends Controller
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
             'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
+
+            // Commitment fields
+            'commitment_month' => 'nullable|string|max:7',
+            'actual' => 'nullable|numeric',
+            'planned' => 'nullable|numeric',
+            'commitment_slippage' => 'nullable|numeric',
+            'advance_payment' => 'nullable|numeric',
+            'progress_interim' => 'nullable|numeric',
         ]);
 
-        $validated['target_completion'] = $validated['expiry_date'] ?? null;
+        // =========================
+        // UPDATE PROJECT
+        // =========================
+        $projectData = collect($validated)->except([
+            'commitment_month',
+            'actual',
+            'planned',
+            'commitment_slippage',
+            'advance_payment',
+            'progress_interim',
+            'photo',
+        ])->toArray();
 
-        $project->update($validated);
+        $projectData['target_completion'] =
+            $projectData['expiry_date'] ?? null;
 
-        // Upload progress photo
+        $project->update($projectData);
+
+        // =========================
+        // SAVE MONTHLY COMMITMENT
+        // =========================
+        if ($request->filled('commitment_month')) {
+
+            ProjectCommitment::updateOrCreate(
+                [
+                    'project_id' => $project->id,
+                    'commitment_month' => $request->commitment_month,
+                ],
+                [
+                    'actual' => $request->actual,
+                    'planned' => $request->planned,
+                    'slippage' => $request->commitment_slippage,
+                    'advance_payment' => $request->advance_payment,
+                    'progress_interim' => $request->progress_interim,
+                ]
+            );
+        }
+
+        // =========================
+        // UPLOAD PROGRESS PHOTO
+        // =========================
         if ($request->hasFile('photo')) {
 
             $path = $request->file('photo')
@@ -174,6 +236,9 @@ class ProjectController extends Controller
             $photo->delete();
         }
 
+        // Delete commitments
+        $project->commitments()->delete();
+
         $project->delete();
 
         return redirect()->route('projects.index')
@@ -182,22 +247,27 @@ class ProjectController extends Controller
 
     /**
      * Download single project PDF.
-     * Everyone can download.
      */
     public function generatePdf(Project $project)
     {
-        $pdf = Pdf::loadView('admin.projects.pdf', compact('project'));
+        $pdf = Pdf::loadView(
+            'admin.projects.pdf',
+            compact('project')
+        );
 
-        return $pdf->download($project->project_id . '_report.pdf');
+        return $pdf->download(
+            $project->project_id . '_report.pdf'
+        );
     }
 
     /**
      * Download all projects PDF.
-     * Everyone can download.
      */
     public function downloadAllPdf()
     {
-        $projects = Project::orderBy('project_id', 'asc')->get();
+        $projects = Project::with('commitments')
+            ->orderBy('project_id', 'asc')
+            ->get();
 
         $pdf = Pdf::loadView(
             'admin.reports.all-projects-pdf',
