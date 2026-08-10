@@ -1,3 +1,5 @@
+<?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -9,8 +11,8 @@ return new class extends Migration
         if (!Schema::hasColumn('projects', 'revised_contract_amount')) {
             Schema::table('projects', function (Blueprint $table) {
                 $table->decimal('revised_contract_amount', 15, 2)
-                      ->nullable()
-                      ->after('contract_amount');
+                    ->nullable()
+                    ->after('contract_amount');
             });
         }
     }
