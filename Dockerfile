@@ -28,10 +28,11 @@ RUN mkdir -p storage/framework/cache \
     bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
+# Clear Laravel caches
+RUN php artisan optimize:clear
+
 # Expose Render port
 EXPOSE 10000
 
-# Run migrations automatically, clear caches, then start Laravel
-CMD php artisan migrate --force && \
-    php artisan optimize:clear && \
-    php artisan serve --host=0.0.0.0 --port=${PORT:-10000}
+# Start Laravel only
+CMD php artisan serve --host=0.0.0.0 --port=${PORT:-10000}
