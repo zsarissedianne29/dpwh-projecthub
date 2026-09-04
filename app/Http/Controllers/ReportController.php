@@ -8,8 +8,10 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class ReportController extends Controller
 {
     /**
-     * Display reports page.
-     * Projects arranged numerically by Project ID.
+     * Display the public Reports page.
+     *
+     * This page is view-only and can be accessed
+     * without logging in.
      */
     public function index()
     {
@@ -21,8 +23,10 @@ class ReportController extends Controller
     }
 
     /**
-     * Download all projects as PDF.
-     * Projects arranged numerically by Project ID.
+     * Generate and download the complete project report as PDF.
+     *
+     * This route remains protected by the auth middleware
+     * in routes/web.php.
      */
     public function projectsPdf()
     {

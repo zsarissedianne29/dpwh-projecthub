@@ -8,9 +8,10 @@ use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\MapController;
 
+
 /*
 |--------------------------------------------------------------------------
-| Public Home Page
+| PUBLIC HOME PAGE
 |--------------------------------------------------------------------------
 */
 
@@ -18,9 +19,61 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+
 /*
 |--------------------------------------------------------------------------
-| Dashboard Redirect
+| PUBLIC VIEW-ONLY PAGES
+|--------------------------------------------------------------------------
+| These pages can be accessed by anyone, even without logging in.
+|--------------------------------------------------------------------------
+*/
+
+
+/*
+|--------------------------------------------------------------------------
+| PROJECTS
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/projects', [ProjectController::class, 'index'])
+    ->name('projects.index');
+
+
+/*
+|--------------------------------------------------------------------------
+| PROJECT MAP
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/project-map', [MapController::class, 'index'])
+    ->name('projects.map');
+
+
+/*
+|--------------------------------------------------------------------------
+| DASHBOARD
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/admin-dashboard', [AdminController::class, 'dashboard'])
+    ->name('admin.dashboard');
+
+
+/*
+|--------------------------------------------------------------------------
+| REPORTS
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/reports', [ReportController::class, 'index'])
+    ->name('reports.index');
+
+
+/*
+|--------------------------------------------------------------------------
+| AUTHENTICATED DASHBOARD REDIRECT
+|--------------------------------------------------------------------------
+| /dashboard still requires login.
 |--------------------------------------------------------------------------
 */
 
@@ -28,9 +81,12 @@ Route::get('/dashboard', function () {
     return redirect()->route('admin.dashboard');
 })->middleware(['auth'])->name('dashboard');
 
+
 /*
 |--------------------------------------------------------------------------
-| Protected Routes
+| PROTECTED ROUTES
+|--------------------------------------------------------------------------
+| These functions require the user to be logged in.
 |--------------------------------------------------------------------------
 */
 
@@ -38,63 +94,55 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Dashboard
+    | PROJECT MANAGEMENT / CRUD
+    |--------------------------------------------------------------------------
+    | index is excluded because the public version is above.
     |--------------------------------------------------------------------------
     */
-    Route::get('/admin-dashboard', [AdminController::class, 'dashboard'])
-        ->name('admin.dashboard');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Projects (CRUD)
-    |--------------------------------------------------------------------------
-    */
     Route::resource('projects', ProjectController::class)
-        ->except(['show']);
+        ->except(['index', 'show']);
+
 
     /*
     |--------------------------------------------------------------------------
-    | Project Map
+    | PROJECT PDF
     |--------------------------------------------------------------------------
     */
-    Route::get('/project-map', [MapController::class, 'index'])
-        ->name('projects.map');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Project PDF Reports
-    |--------------------------------------------------------------------------
-    */
     Route::get('/projects/{project}/pdf', [ProjectController::class, 'generatePdf'])
         ->name('projects.pdf');
 
+
     /*
     |--------------------------------------------------------------------------
-    | Survey Forms
+    | SURVEY FORMS
     |--------------------------------------------------------------------------
     */
+
     Route::get('/survey-forms', [SurveyController::class, 'index'])
         ->name('survey.index');
 
     Route::post('/survey-forms', [SurveyController::class, 'store'])
         ->name('survey.store');
 
+
     /*
     |--------------------------------------------------------------------------
-    | Consolidated Reports
+    | CONSOLIDATED REPORT PDF
     |--------------------------------------------------------------------------
     */
-    Route::get('/reports', [ReportController::class, 'index'])
-        ->name('reports.index');
 
     Route::get('/reports/projects-pdf', [ReportController::class, 'projectsPdf'])
         ->name('reports.projects-pdf');
 
+
     /*
     |--------------------------------------------------------------------------
-    | User Profile
+    | USER PROFILE
     |--------------------------------------------------------------------------
     */
+
     Route::get('/profile', [ProfileController::class, 'edit'])
         ->name('profile.edit');
 
@@ -105,9 +153,10 @@ Route::middleware(['auth'])->group(function () {
         ->name('profile.destroy');
 });
 
+
 /*
 |--------------------------------------------------------------------------
-| Authentication Routes
+| AUTHENTICATION ROUTES
 |--------------------------------------------------------------------------
 */
 

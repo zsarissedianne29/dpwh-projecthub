@@ -3,20 +3,28 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
-use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
+    /**
+     * Display the ProjectHub dashboard.
+     *
+     * This dashboard is publicly viewable and does not require
+     * the visitor to be logged in.
+     */
     public function dashboard()
     {
+        // Total number of projects
         $total = Project::count();
 
-        $ongoing = Project::where('status','ongoing')->count();
+        // Ongoing projects
+        $ongoing = Project::where('status', 'ongoing')->count();
 
-        $completed = Project::where('status','completed')->count();
+        // Completed projects
+        $completed = Project::where('status', 'completed')->count();
 
-        $suspended = Project::where('status','suspended')->count();
-
+        // Suspended projects
+        $suspended = Project::where('status', 'suspended')->count();
 
         return view('admin.dashboard', compact(
             'total',
