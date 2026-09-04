@@ -13,7 +13,8 @@ class ReportController extends Controller
      */
     public function index()
     {
-        $projects = Project::orderBy('project_id', 'asc')
+        $projects = Project::with('commitments')
+            ->orderBy('project_id', 'asc')
             ->get();
 
         return view('admin.reports.index', compact('projects'));
@@ -25,7 +26,8 @@ class ReportController extends Controller
      */
     public function projectsPdf()
     {
-        $projects = Project::orderBy('project_id', 'asc')
+        $projects = Project::with('commitments')
+            ->orderBy('project_id', 'asc')
             ->get();
 
         $pdf = Pdf::loadView(

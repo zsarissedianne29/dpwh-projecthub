@@ -1,3 +1,5 @@
+blade
+
 @extends('layouts.admin')
 
 @section('title', 'Reports')
@@ -34,7 +36,7 @@
             <input type="month"
                    name="month"
                    class="form-control shadow-sm"
-                   value="{{ request('month', now()->format('Y-m')) }}">
+                   value="{{ request('month', now()->format('Y-m') }}">
 
         </div>
 
@@ -112,25 +114,92 @@
                 @forelse($projects as $index => $project)
 
                     @php
-                        $selectedMonth = request('month', now()->format('Y-m'));
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | SELECTED MONTH
+                        |--------------------------------------------------------------------------
+                        */
+
+                        $selectedMonth = request(
+                            'month',
+                            now()->format('Y-m')
+                        );
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | MONTHLY COMMITMENT
+                        |--------------------------------------------------------------------------
+                        */
 
                         $commitment = $project->commitments
                             ->where('commitment_month', $selectedMonth)
                             ->first();
 
-                        $baseAmount = $project->revised_contract_amount
-                                    ?? $project->contract_amount
-                                    ?? 0;
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | CONTRACT AMOUNT USED FOR BALANCE
+                        |--------------------------------------------------------------------------
+                        */
+
+                        $baseAmount =
+                            $project->revised_contract_amount
+                            ?? $project->contract_amount
+                            ?? 0;
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | PROJECT FINANCIAL ACCOMPLISHMENT
+                        |--------------------------------------------------------------------------
+                        */
 
                         $financialPercent =
                             $project->financial_accomplishment ?? 0;
 
-                        $balance = $baseAmount -
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | PROJECT PHYSICAL ACCOMPLISHMENT
+                        |--------------------------------------------------------------------------
+                        |
+                        | This value comes directly from the projects table.
+                        | It is separate from the monthly commitment Actual.
+                        |
+                        */
+
+                        $physicalPercent =
+                            $project->physical_accomplishment ?? 0;
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | BALANCE
+                        |--------------------------------------------------------------------------
+                        */
+
+                        $balance =
+                            $baseAmount -
                             (($financialPercent / 100) * $baseAmount);
 
-                        $actual = $commitment->actual ?? 0;
-                        $planned = $commitment->planned ?? 0;
-                        $slippage = $commitment->slippage ?? 0;
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | MONTHLY COMMITMENT VALUES
+                        |--------------------------------------------------------------------------
+                        */
+
+                        $actual =
+                            $commitment->actual ?? 0;
+
+                        $planned =
+                            $commitment->planned ?? 0;
+
+                        $slippage =
+                            $commitment->slippage ?? 0;
+
                     @endphp
 
                     <tr>
@@ -140,81 +209,141 @@
                             {{ $index + 1 }}
                         </td>
 
+
                         <!-- Project ID -->
                         <td class="text-center fw-semibold text-primary">
                             {{ $project->project_id }}
                         </td>
 
+
                         <!-- Project Title -->
                         <td class="small">
 
                             <div class="fw-semibold text-dark mb-1">
-                                {{ \Illuminate\Support\Str::limit($project->project_title, 120) }}
+
+                                {{ \Illuminate\Support\Str::limit(
+                                    $project->project_title,
+                                    120
+                                ) }}
+
                             </div>
 
                             @if($project->location)
+
                                 <small class="text-muted">
+
                                     <i class="bi bi-geo-alt me-1"></i>
+
                                     {{ $project->location }}
+
                                 </small>
+
                             @endif
 
                         </td>
 
+
                         <!-- Contract Amount -->
                         <td class="text-end fw-semibold">
-                            ₱{{ number_format($project->contract_amount ?? 0, 2) }}
+
+                            ₱{{ number_format(
+                                $project->contract_amount ?? 0,
+                                2
+                            ) }}
+
                         </td>
+
 
                         <!-- Revised Contract Amount -->
                         <td class="text-end fw-semibold text-success">
-                            ₱{{ number_format($project->revised_contract_amount ?? $project->contract_amount ?? 0, 2) }}
+
+                            ₱{{ number_format(
+                                $project->revised_contract_amount
+                                ?? $project->contract_amount
+                                ?? 0,
+                                2
+                            ) }}
+
                         </td>
+
 
                         <!-- Contractor -->
                         <td class="small">
+
                             {{ $project->contractor ?: 'N/A' }}
+
                         </td>
 
-                        <!-- Engineer -->
+
+                        <!-- Project Engineer -->
                         <td class="small">
+
                             {{ $project->project_engineer ?: 'N/A' }}
+
                         </td>
 
-                        <!-- Dates -->
+
+                        <!-- Start Date -->
                         <td class="text-center small">
+
                             {{ $project->start_date ?: '-' }}
+
                         </td>
 
+
+                        <!-- Expiry Date -->
                         <td class="text-center small">
+
                             {{ $project->expiry_date ?: '-' }}
+
                         </td>
 
-                        <!-- Physical -->
+
+                        <!-- Physical Accomplishment -->
                         <td class="text-center fw-semibold text-info">
-                            {{ number_format($actual, 2) }}%
+
+                            {{ number_format(
+                                $physicalPercent,
+                                2
+                            ) }}%
+
                         </td>
 
-                        <!-- Financial -->
+
+                        <!-- Financial Accomplishment -->
                         <td class="text-center fw-semibold text-primary">
-                            {{ number_format($financialPercent, 2) }}%
+
+                            {{ number_format(
+                                $financialPercent,
+                                2
+                            ) }}%
+
                         </td>
+
 
                         <!-- Balance -->
                         <td class="text-end fw-bold text-danger">
-                            ₱{{ number_format($balance, 2) }}
+
+                            ₱{{ number_format(
+                                $balance,
+                                2
+                            ) }}
+
                         </td>
 
-                        <!-- COMMITMENT COLUMN -->
+
+                        <!-- MONTHLY COMMITMENT -->
                         <td class="align-top p-2">
 
                             <div class="border rounded-3 bg-light p-2 h-100">
 
+                                <!-- Commitment Header -->
                                 <div class="d-flex justify-content-between align-items-center mb-2">
 
                                     <small class="fw-semibold text-primary">
 
                                         <i class="bi bi-calendar-check me-1"></i>
+
                                         Commitment
 
                                     </small>
@@ -222,14 +351,22 @@
                                     <small class="text-muted">
 
                                         As of
-                                        {{ \Carbon\Carbon::createFromFormat('Y-m', $selectedMonth)->endOfMonth()->format('F d, Y') }}
+
+                                        {{ \Carbon\Carbon::createFromFormat(
+                                            'Y-m',
+                                            $selectedMonth
+                                        )->endOfMonth()->format('F d, Y') }}
 
                                     </small>
 
                                 </div>
 
+
+                                <!-- Commitment Details -->
                                 <div class="row g-2 small">
 
+
+                                    <!-- Actual -->
                                     <div class="col-6">
 
                                         <div class="border rounded-3 bg-white p-2 text-center h-100">
@@ -239,13 +376,20 @@
                                             </div>
 
                                             <div class="fw-bold text-info">
-                                                {{ number_format($actual, 2) }}%
+
+                                                {{ number_format(
+                                                    $actual,
+                                                    2
+                                                ) }}%
+
                                             </div>
 
                                         </div>
 
                                     </div>
 
+
+                                    <!-- Planned -->
                                     <div class="col-6">
 
                                         <div class="border rounded-3 bg-white p-2 text-center h-100">
@@ -255,13 +399,20 @@
                                             </div>
 
                                             <div class="fw-bold text-primary">
-                                                {{ number_format($planned, 2) }}%
+
+                                                {{ number_format(
+                                                    $planned,
+                                                    2
+                                                ) }}%
+
                                             </div>
 
                                         </div>
 
                                     </div>
 
+
+                                    <!-- Slippage -->
                                     <div class="col-12">
 
                                         <div class="border rounded-3 bg-white p-2 text-center">
@@ -270,14 +421,24 @@
                                                 Slippage
                                             </div>
 
-                                            <div class="fw-bold {{ $slippage < 0 ? 'text-danger' : 'text-success' }}">
-                                                {{ number_format($slippage, 2) }}%
+                                            <div class="fw-bold
+                                                {{ $slippage < 0
+                                                    ? 'text-danger'
+                                                    : 'text-success' }}">
+
+                                                {{ number_format(
+                                                    $slippage,
+                                                    2
+                                                ) }}%
+
                                             </div>
 
                                         </div>
 
                                     </div>
 
+
+                                    <!-- Advance Payment -->
                                     <div class="col-6">
 
                                         <div class="border rounded-3 bg-white p-2 text-center h-100">
@@ -289,8 +450,12 @@
                                             <div class="fw-semibold">
 
                                                 {{ $commitment && $commitment->advance_payment
-                                                    ? '₱' . number_format($commitment->advance_payment, 2)
-                                                    : '—' }}
+                                                    ? '₱' . number_format(
+                                                        $commitment->advance_payment,
+                                                        2
+                                                    )
+                                                    : '—'
+                                                }}
 
                                             </div>
 
@@ -298,6 +463,8 @@
 
                                     </div>
 
+
+                                    <!-- Progress / Interim -->
                                     <div class="col-6">
 
                                         <div class="border rounded-3 bg-white p-2 text-center h-100">
@@ -309,8 +476,12 @@
                                             <div class="fw-semibold">
 
                                                 {{ $commitment && $commitment->progress_interim
-                                                    ? '₱' . number_format($commitment->progress_interim, 2)
-                                                    : '—' }}
+                                                    ? '₱' . number_format(
+                                                        $commitment->progress_interim,
+                                                        2
+                                                    )
+                                                    : '—'
+                                                }}
 
                                             </div>
 
@@ -323,6 +494,7 @@
                             </div>
 
                         </td>
+
 
                         <!-- Status -->
                         <td class="text-center">
@@ -348,7 +520,11 @@
                             @else
 
                                 <span class="badge bg-secondary px-3 py-2 rounded-pill">
-                                    {{ ucfirst($project->status ?? 'Unknown') }}
+
+                                    {{ ucfirst(
+                                        $project->status ?? 'Unknown'
+                                    ) }}
+
                                 </span>
 
                             @endif
